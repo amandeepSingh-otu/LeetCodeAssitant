@@ -1,0 +1,43 @@
+{
+  "manifest_version": 3,
+  "name": "LeetCode Assistant",
+  "version": "0.1.0",
+  "description": "Assistant for LeetCode — highlights code and provides hints.",
+  "action": {
+    "default_title": "LeetCode Assistant",
+    "default_popup": "popup.html",
+    "default_icon": {
+      "48": "icon.png"
+    }
+  },
+  "permissions": [
+    "activeTab",
+    "scripting",
+    "sidePanel"
+  ],
+  "host_permissions": [
+    "https://leetcode.com/*"
+  ],
+  "content_scripts": [
+    {
+      "matches": ["https://leetcode.com/*"],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["pageScript.js"],
+      "matches": ["https://leetcode.com/*"]
+    }
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "side_panel": {
+    "default_path": "popup.html"
+  },
+  "icons": {
+    "48": "icon.png"
+  }
+}

@@ -1,0 +1,285 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>LeetCode Assistant</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Manrope:wght@400;500;600&display=swap');
+    :root {
+      color-scheme: dark;
+    }
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      padding: 28px 32px 32px;
+  min-width: 360px;
+  width: min(760px, calc(100vw - 32px));
+      min-height: 100vh;
+      font-family: "Manrope", "Segoe UI", system-ui, -apple-system, sans-serif;
+      background:
+        radial-gradient(circle at 15% 25%, rgba(255, 194, 228, 0.25), transparent 55%),
+        radial-gradient(circle at 85% 10%, rgba(152, 214, 255, 0.2), transparent 45%),
+        linear-gradient(135deg, #1c0f20, #060912 70%);
+      color: #f1f5f9;
+      display: flex;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+    body::before,
+    body::after {
+      content: "";
+      position: absolute;
+      width: 420px;
+      height: 420px;
+      border-radius: 50%;
+      filter: blur(120px);
+      opacity: 0.45;
+      pointer-events: none;
+    }
+    body::before {
+      background: #ff7fbb;
+      top: -140px;
+      left: -120px;
+    }
+    body::after {
+      background: #6ecbff;
+      bottom: -180px;
+      right: -80px;
+    }
+    .panel {
+      background: linear-gradient(165deg, rgba(28, 16, 38, 0.94), rgba(11, 16, 29, 0.95));
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 24px;
+      padding: 28px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      box-shadow: 0 20px 65px rgba(6,9,20,0.65);
+      min-height: 94vh;
+      width: 100%;
+      position: relative;
+    }
+    .panel::after {
+      content: "";
+      position: absolute;
+      inset: 1px;
+      border-radius: 23px;
+      border: 1px solid rgba(255,255,255,0.08);
+      pointer-events: none;
+    }
+    .panel::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: 24px;
+      background: radial-gradient(circle at 20% 15%, rgba(255, 199, 231, 0.16), transparent 55%);
+      pointer-events: none;
+    }
+    .panel header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .title-block {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .title {
+      font-family: "Playfair Display", "Times New Roman", serif;
+      font-size: 1.45rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+    }
+    .title-block small {
+      color: rgba(255,255,255,0.65);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      font-size: 0.7rem;
+    }
+    .chat-window {
+      flex: 1;
+      min-height: 420px;
+      max-height: calc(100vh - 280px);
+      border-radius: 18px;
+  border: 1px solid rgba(255,255,255,0.08);
+  background: linear-gradient(165deg, rgba(12, 16, 33, 0.95), rgba(39, 23, 51, 0.92));
+  padding: 24px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.05), 0 12px 45px rgba(119, 35, 91, 0.25);
+    }
+    .chat-window::-webkit-scrollbar {
+      width: 6px;
+    }
+    .chat-window::-webkit-scrollbar-thumb {
+      background: rgba(255,255,255,0.15);
+      border-radius: 12px;
+    }
+    .chat-placeholder {
+      color: rgba(255,255,255,0.45);
+      font-size: 1rem;
+      line-height: 1.5;
+    }
+    .chat-msg {
+  padding: 14px 16px;
+  border-radius: 16px;
+      font-size: 0.95rem;
+      line-height: 1.4;
+    }
+    .chat-msg.user {
+      align-self: flex-end;
+      background: rgba(255, 158, 206, 0.12);
+      border: 1px solid rgba(255, 158, 206, 0.4);
+    }
+    .chat-msg.assistant {
+      align-self: flex-start;
+      background: rgba(142, 246, 255, 0.08);
+      border: 1px solid rgba(142, 246, 255, 0.35);
+    }
+    .controls {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+      gap: 12px;
+    }
+    button {
+      border: none;
+      border-radius: 14px;
+      padding: 14px 16px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 140ms ease, background 140ms ease, box-shadow 140ms ease;
+    }
+    button:active {
+      transform: translateY(1px);
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, #ffd1ec, #ff4997);
+      color: #3a0b2a;
+      box-shadow: 0 18px 30px rgba(255, 104, 185, 0.4);
+    }
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.14);
+      color: #fff0fb;
+      border: 1px solid rgba(255,255,255,0.25);
+    }
+    .btn-accent {
+      background: rgba(142, 246, 255, 0.18);
+      color: #8ef6ff;
+      border: 1px solid rgba(142, 246, 255, 0.45);
+    }
+    .btn-ghost {
+      background: transparent;
+      color: rgba(255,255,255,0.85);
+      border: 1px dashed rgba(255,255,255,0.25);
+    }
+    .toggle-row,
+    .status-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      font-size: 0.95rem;
+      color: rgba(255,255,255,0.7);
+    }
+    .toggle-row p {
+      margin: 0;
+      font-weight: 600;
+      font-size: 1rem;
+    }
+    .toggle-meta {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .toggle-pill {
+      padding: 6px 14px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.25);
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+    .switch {
+      position: relative;
+      width: 48px;
+      height: 24px;
+    }
+    .switch input {
+      width: 0;
+      height: 0;
+      opacity: 0;
+    }
+    .slider {
+      position: absolute;
+      inset: 0;
+      background: rgba(255,204,232,0.45);
+      border-radius: 999px;
+      transition: background 150ms ease;
+    }
+    .slider::before {
+      content: "";
+      position: absolute;
+      height: 18px;
+      width: 18px;
+      left: 3px;
+      top: 3px;
+      border-radius: 50%;
+      background: #fff8fb;
+      transition: transform 150ms ease;
+    }
+    .switch input:checked + .slider {
+      background: linear-gradient(135deg, #ff7edb, #8ef6ff);
+    }
+    .switch input:checked + .slider::before {
+      transform: translateX(24px);
+    }
+    #status {
+      font-size: 0.85rem;
+      color: rgba(255,255,255,0.7);
+    }
+  </style>
+</head>
+<body>
+  <div class="panel">
+    <header>
+      <div class="title-block">
+        <div class="title">LeetCode Assistant</div>
+      </div>
+    </header>
+
+    <div class="chat-window" id="chatWindow">
+      <div class="chat-placeholder">Tap “Get hint” to start a conversation about your current problem.</div>
+    </div>
+
+    <div class="controls">
+      <button id="getHint" class="btn-primary">Get hint</button>
+      <button id="moreHint" class="btn-secondary">Give more hint</button>
+      <button id="similarQuestion" class="btn-accent">Similar question</button>
+    </div>
+
+    <div class="toggle-row">
+      <p>Don’t show code in answer</p>
+      <div class="toggle-meta">
+        <span class="toggle-pill" id="hideCodeLabel">Off</span>
+        <label class="switch">
+          <input type="checkbox" id="hideCodeToggle" />
+          <span class="slider"></span>
+        </label>
+      </div>
+    </div>
+
+    <div class="status-row">
+      <span id="status">Ready</span>
+    </div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
