@@ -4,279 +4,411 @@
   <meta charset="utf-8" />
   <title>LeetCode Assistant</title>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Manrope:wght@400;500;600&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Quicksand:wght@500;600;700&display=swap');
+
     :root {
-      color-scheme: dark;
+        /* The css is AI generated, and later fixed to make the UI look good */
+      --bg-gradient: linear-gradient(to bottom, #0f0c29, #302b63, #24243e);
+      
+      --glass-bg: rgba(20, 20, 35, 0.6);
+      --glass-border: rgba(255, 255, 255, 0.15);
+      
+      --text-main: #ffffff;
+      --text-muted: rgba(255, 255, 255, 0.7);
+      
+    
+      --accent-pink: #ff007f; 
+      --accent-purple: #bd00ff; 
+      --accent-cyan: #00f2ff;
+      
+      --btn-gradient: linear-gradient(135deg, #ff007f 0%, #bd00ff 100%);
+      --btn-secondary-bg: rgba(255, 255, 255, 0.1);
     }
+
     * {
       box-sizing: border-box;
     }
+
     body {
       margin: 0;
-      padding: 28px 32px 32px;
-  min-width: 360px;
-  width: min(760px, calc(100vw - 32px));
-      min-height: 100vh;
-      font-family: "Manrope", "Segoe UI", system-ui, -apple-system, sans-serif;
-      background:
-        radial-gradient(circle at 15% 25%, rgba(255, 194, 228, 0.25), transparent 55%),
-        radial-gradient(circle at 85% 10%, rgba(152, 214, 255, 0.2), transparent 45%),
-        linear-gradient(135deg, #1c0f20, #060912 70%);
-      color: #f1f5f9;
-      display: flex;
-      justify-content: center;
-      position: relative;
+      padding: 0;
+    
+      width: 100%;
+      height: 100vh;
+      font-family: "Quicksand", "Manrope", sans-serif;
+      background: var(--bg-gradient);
+      color: var(--text-main);
       overflow: hidden;
+      display: flex;
+      flex-direction: column; 
     }
+
+  
     body::before,
     body::after {
       content: "";
       position: absolute;
-      width: 420px;
-      height: 420px;
+      width: 250px;
+      height: 250px;
       border-radius: 50%;
-      filter: blur(120px);
-      opacity: 0.45;
+      filter: blur(90px);
+      opacity: 0.5;
       pointer-events: none;
+      z-index: 0;
     }
+
     body::before {
-      background: #ff7fbb;
-      top: -140px;
-      left: -120px;
+      background: #4a00e0;
+      top: -60px;
+      left: -60px;
+      animation: float 10s infinite ease-in-out alternate;
     }
+
     body::after {
-      background: #6ecbff;
-      bottom: -180px;
-      right: -80px;
+      background: #ff007f;
+      bottom: -60px;
+      right: -60px;
+      animation: float 8s infinite ease-in-out alternate-reverse;
     }
+
+    @keyframes float {
+      0% { transform: translate(0, 0); }
+      100% { transform: translate(20px, 40px); }
+    }
+
     .panel {
-      background: linear-gradient(165deg, rgba(28, 16, 38, 0.94), rgba(11, 16, 29, 0.95));
-      border: 1px solid rgba(255,255,255,0.12);
-      border-radius: 24px;
-      padding: 28px;
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      height: 100%;
       display: flex;
       flex-direction: column;
-      gap: 20px;
-      box-shadow: 0 20px 65px rgba(6,9,20,0.65);
-      min-height: 94vh;
-      width: 100%;
-      position: relative;
+      padding: 24px;
+      backdrop-filter: blur(20px);
+      background: var(--glass-bg);
+  
     }
-    .panel::after {
-      content: "";
-      position: absolute;
-      inset: 1px;
-      border-radius: 23px;
-      border: 1px solid rgba(255,255,255,0.08);
-      pointer-events: none;
-    }
-    .panel::before {
-      content: "";
-      position: absolute;
-      inset: 0;
-      border-radius: 24px;
-      background: radial-gradient(circle at 20% 15%, rgba(255, 199, 231, 0.16), transparent 55%);
-      pointer-events: none;
-    }
-    .panel header {
+
+    /* Header */
+    header {
       display: flex;
       justify-content: space-between;
       align-items: center;
+      margin-bottom: 20px;
+      flex-shrink: 0;
     }
+
     .title-block {
       display: flex;
-      flex-direction: column;
-      gap: 4px;
+      align-items: center;
+      gap: 8px;
     }
+
+    .flower-icon {
+      font-size: 1.5rem;
+      filter: drop-shadow(0 0 10px rgba(255, 105, 180, 0.8));
+    }
+
     .title {
-      font-family: "Playfair Display", "Times New Roman", serif;
-      font-size: 1.45rem;
-      font-weight: 600;
-      letter-spacing: 0.04em;
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: #fff;
+      text-shadow: 0 2px 10px rgba(0,0,0,0.3);
     }
-    .title-block small {
-      color: rgba(255,255,255,0.65);
-      letter-spacing: 0.06em;
+
+    .hints-left {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: #fff;
+      background: rgba(255, 0, 127, 0.3);
+      border: 1px solid var(--accent-pink);
+      padding: 6px 12px;
+      border-radius: 12px;
+      box-shadow: 0 0 15px rgba(255, 0, 127, 0.4);
       text-transform: uppercase;
-      font-size: 0.7rem;
+      letter-spacing: 0.05em;
     }
+
+
     .chat-window {
       flex: 1;
-      min-height: 420px;
-      max-height: calc(100vh - 280px);
-      border-radius: 18px;
-  border: 1px solid rgba(255,255,255,0.08);
-  background: linear-gradient(165deg, rgba(12, 16, 33, 0.95), rgba(39, 23, 51, 0.92));
-  padding: 24px;
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 20px;
+      padding: 16px;
       overflow-y: auto;
       display: flex;
       flex-direction: column;
       gap: 12px;
-      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.05), 0 12px 45px rgba(119, 35, 91, 0.25);
+      margin-bottom: 20px;
+      box-shadow: inset 0 2px 20px rgba(0, 0, 0, 0.4);
     }
+
+  
     .chat-window::-webkit-scrollbar {
       width: 6px;
     }
+    .chat-window::-webkit-scrollbar-track {
+      background: transparent;
+    }
     .chat-window::-webkit-scrollbar-thumb {
-      background: rgba(255,255,255,0.15);
-      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 10px;
     }
+    .chat-window::-webkit-scrollbar-thumb:hover {
+      background: rgba(255, 255, 255, 0.4);
+    }
+
     .chat-placeholder {
-      color: rgba(255,255,255,0.45);
+      color: var(--text-muted);
       font-size: 1rem;
-      line-height: 1.5;
+      text-align: center;
+      margin-top: auto;
+      margin-bottom: auto;
+      font-weight: 500;
+      line-height: 1.6;
     }
+
     .chat-msg {
-  padding: 14px 16px;
-  border-radius: 16px;
+      padding: 12px 16px;
+      border-radius: 18px;
       font-size: 0.95rem;
-      line-height: 1.4;
+      line-height: 1.5;
+      max-width: 90%;
+      word-wrap: break-word;
+      animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
     }
+
+    @keyframes popIn {
+      from { opacity: 0; transform: scale(0.9); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
     .chat-msg.user {
       align-self: flex-end;
-      background: rgba(255, 158, 206, 0.12);
-      border: 1px solid rgba(255, 158, 206, 0.4);
+      background: linear-gradient(135deg, #a18cd1, #bc4e9c);
+      color: #fff;
+      border-bottom-right-radius: 4px;
+      font-weight: 600;
     }
+
     .chat-msg.assistant {
       align-self: flex-start;
-      background: rgba(142, 246, 255, 0.08);
-      border: 1px solid rgba(142, 246, 255, 0.35);
+      background: rgba(255, 255, 255, 0.12);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: #e0e0e0;
+      border-bottom-left-radius: 4px;
     }
+
+    /* Controls Area */
     .controls {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      flex-shrink: 0;
+    }
+
+    .btn-row {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+      grid-template-columns: 1fr 1fr;
       gap: 12px;
     }
+
     button {
       border: none;
-      border-radius: 14px;
-      padding: 14px 16px;
-      font-size: 1rem;
-      font-weight: 600;
+      border-radius: 16px;
+      padding: 14px;
+      font-family: inherit;
+      font-size: 0.95rem;
+      font-weight: 700;
       cursor: pointer;
-      transition: transform 140ms ease, background 140ms ease, box-shadow 140ms ease;
+      transition: all 0.2s ease;
+      position: relative;
+      overflow: hidden;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
     }
+
     button:active {
-      transform: translateY(1px);
+      transform: scale(0.96);
     }
+
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      filter: grayscale(0.8);
+    }
+
     .btn-primary {
-      background: linear-gradient(135deg, #ffd1ec, #ff4997);
-      color: #3a0b2a;
-      box-shadow: 0 18px 30px rgba(255, 104, 185, 0.4);
+      background: var(--btn-gradient);
+      color: white;
+      box-shadow: 0 0 20px rgba(189, 0, 255, 0.4);
+      border: 1px solid rgba(255, 255, 255, 0.2);
     }
+    .btn-primary:hover {
+      filter: brightness(1.1);
+      box-shadow: 0 0 30px rgba(189, 0, 255, 0.6);
+    }
+
     .btn-secondary {
-      background: rgba(255, 255, 255, 0.14);
-      color: #fff0fb;
-      border: 1px solid rgba(255,255,255,0.25);
+      background: var(--btn-secondary-bg);
+      color: #fff;
+      border: 1px solid rgba(255, 255, 255, 0.2);
     }
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+
     .btn-accent {
-      background: rgba(142, 246, 255, 0.18);
-      color: #8ef6ff;
-      border: 1px solid rgba(142, 246, 255, 0.45);
+      background: rgba(0, 242, 255, 0.1);
+      color: var(--accent-cyan);
+      border: 1px solid rgba(0, 242, 255, 0.3);
     }
-    .btn-ghost {
-      background: transparent;
-      color: rgba(255,255,255,0.85);
-      border: 1px dashed rgba(255,255,255,0.25);
+    .btn-accent:hover {
+      background: rgba(0, 242, 255, 0.2);
+      box-shadow: 0 0 15px rgba(0, 242, 255, 0.2);
     }
-    .toggle-row,
-    .status-row {
+
+    .btn-danger {
+      background: rgba(255, 60, 60, 0.15);
+      color: #ff6b6b;
+      border: 1px solid rgba(255, 60, 60, 0.4);
+      width: 100%;
+    }
+    .btn-danger:hover {
+      background: rgba(255, 60, 60, 0.25);
+    }
+
+    /* Footer / Toggles */
+    .footer-row {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      gap: 12px;
-      font-size: 0.95rem;
-      color: rgba(255,255,255,0.7);
+      margin-top: 20px;
+      padding-top: 15px;
+      border-top: 1px solid rgba(255, 255, 255, 0.15);
+      flex-shrink: 0;
     }
-    .toggle-row p {
-      margin: 0;
+
+    .footer-label {
+      font-size: 0.85rem;
+      color: var(--text-muted);
       font-weight: 600;
-      font-size: 1rem;
     }
-    .toggle-meta {
+
+    .toggle-wrapper {
       display: flex;
       align-items: center;
       gap: 10px;
     }
-    .toggle-pill {
-      padding: 6px 14px;
-      border-radius: 999px;
-      border: 1px solid rgba(255,255,255,0.25);
-      font-size: 0.85rem;
+
+    .toggle-status {
+      font-size: 0.75rem;
+      font-weight: 700;
       text-transform: uppercase;
-      letter-spacing: 0.08em;
+      letter-spacing: 0.05em;
+      color: var(--text-main);
     }
+
     .switch {
       position: relative;
-      width: 48px;
+      width: 46px;
       height: 24px;
     }
-    .switch input {
-      width: 0;
-      height: 0;
-      opacity: 0;
-    }
+    .switch input { opacity: 0; width: 0; height: 0; }
+    
     .slider {
       position: absolute;
+      cursor: pointer;
       inset: 0;
-      background: rgba(255,204,232,0.45);
-      border-radius: 999px;
-      transition: background 150ms ease;
+      background-color: rgba(255, 255, 255, 0.1);
+      border-radius: 34px;
+      transition: .3s;
+      border: 1px solid rgba(255, 255, 255, 0.3);
     }
-    .slider::before {
-      content: "";
+    .slider:before {
       position: absolute;
-      height: 18px;
-      width: 18px;
+      content: "";
+      height: 16px;
+      width: 16px;
       left: 3px;
-      top: 3px;
+      bottom: 3px;
+      background-color: white;
       border-radius: 50%;
-      background: #fff8fb;
-      transition: transform 150ms ease;
+      transition: .3s;
+      box-shadow: 0 0 10px rgba(255,255,255,0.5);
     }
-    .switch input:checked + .slider {
-      background: linear-gradient(135deg, #ff7edb, #8ef6ff);
+    input:checked + .slider {
+      background: var(--accent-pink);
+      border-color: var(--accent-pink);
     }
-    .switch input:checked + .slider::before {
-      transform: translateX(24px);
+    input:checked + .slider:before {
+      transform: translateX(20px);
     }
+
     #status {
-      font-size: 0.85rem;
-      color: rgba(255,255,255,0.7);
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: rgba(255,255,255,0.5);
+    }
+
+
+    pre {
+      background: rgba(0, 0, 0, 0.6) !important;
+      border-radius: 12px !important;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      padding: 12px;
+      margin: 8px 0;
+      white-space: pre-wrap;
+      word-break: break-all;
+      color: #00f2ff; /* Cyan text for code */
+      font-family: 'Consolas', 'Courier New', monospace;
+      font-size: 0.85em;
+      text-shadow: 0 0 5px rgba(0, 242, 255, 0.3);
     }
   </style>
 </head>
 <body>
   <div class="panel">
+    <!-- I used AI to generate the emoji and the basic layout and then edited it later-->
     <header>
       <div class="title-block">
+        <span class="flower-icon">🌺</span>
         <div class="title">LeetCode Assistant</div>
       </div>
+      <div class="hints-left" id="hintsLeftDisplay">10 Hints Left</div>
     </header>
 
     <div class="chat-window" id="chatWindow">
-      <div class="chat-placeholder">Tap “Get hint” to start a conversation about your current problem.</div>
+      <div class="chat-placeholder">
+        <p>👋 Hello!</p>
+        <p>Ready to bloom? 🌸<br>Tap "Get Hint" to start.</p>
+      </div>
     </div>
 
     <div class="controls">
-      <button id="getHint" class="btn-primary">Get hint</button>
-      <button id="moreHint" class="btn-secondary">Give more hint</button>
-      <button id="similarQuestion" class="btn-accent">Similar question</button>
+      <div class="btn-row">
+        <button id="getHint" class="btn-primary">Get Hint</button>
+        <button id="moreHint" class="btn-secondary">More Hint</button>
+      </div>
+      <div class="btn-row">
+        <button id="getComplexity" class="btn-accent">Complexity</button>
+        <button id="getEdgeCase" class="btn-accent">Edge Cases</button>
+      </div>
+      <button id="giveUpBtn" class="btn-danger" style="display: none;">I Give Up (Show Solution)</button>
     </div>
 
-    <div class="toggle-row">
-      <p>Don’t show code in answer</p>
-      <div class="toggle-meta">
-        <span class="toggle-pill" id="hideCodeLabel">Off</span>
+    <div class="footer-row">
+      <div class="toggle-wrapper">
+        <span class="footer-label">Hide Code</span>
         <label class="switch">
           <input type="checkbox" id="hideCodeToggle" />
           <span class="slider"></span>
         </label>
+        <span class="toggle-status" id="hideCodeLabel">Off</span>
       </div>
-    </div>
-
-    <div class="status-row">
-      <span id="status">Ready</span>
+      <div id="status">Ready</div>
     </div>
   </div>
 

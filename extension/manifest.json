@@ -5,7 +5,6 @@
   "description": "Assistant for LeetCode — highlights code and provides hints.",
   "action": {
     "default_title": "LeetCode Assistant",
-    "default_popup": "popup.html",
     "default_icon": {
       "48": "icon.png"
     }
@@ -18,19 +17,21 @@
   "host_permissions": [
     "https://leetcode.com/*"
   ],
-  "content_scripts": [
-    {
-      "matches": ["https://leetcode.com/*"],
-      "js": ["content.js"],
-      "run_at": "document_idle"
-    }
-  ],
-  "web_accessible_resources": [
-    {
-      "resources": ["pageScript.js"],
-      "matches": ["https://leetcode.com/*"]
-    }
-  ],
+ "content_scripts": [
+  {
+    "matches": ["https://leetcode.com/*"],
+    "js": ["pageScript.js"],
+    "world": "MAIN",
+    "run_at": "document_idle"
+  },
+  {
+    "matches": ["https://leetcode.com/*"],
+    "js": ["content.js"],
+    "world": "ISOLATED",
+    "run_at": "document_idle"
+  }
+],
+  
   "background": {
     "service_worker": "background.js"
   },

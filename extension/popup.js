@@ -1,162 +1,169 @@
 document.addEventListener('DOMContentLoaded', () => {
+  const BACKEND_URL = "http://127.0.0.1:800"; 
+  const MAX_HINTS = 10;
+  const chatWindow = document.getElementById('chatWindow');
+  const status = document.getElementById('status');
+  const hintsLeftDisplay = document.getElementById('hintsLeftDisplay');
+
   const getHintBtn = document.getElementById('getHint');
   const moreHintBtn = document.getElementById('moreHint');
-  const similarBtn = document.getElementById('similarQuestion');
-  const status = document.getElementById('status');
-  const chatWindow = document.getElementById('chatWindow');
-  const toggle = document.getElementById('hideCodeToggle');
-  const hideCodeLabel = document.getElementById('hideCodeLabel');
+  const complexityBtn = document.getElementById('getComplexity');
+  const edgeCaseBtn = document.getElementById('getEdgeCase');
+  const giveUpBtn = document.getElementById('giveUpBtn');
 
-  const chatHistory = [];
-  const SIMILAR_QUESTIONS = [
-    'Two Sum (Easy)',
-    'Valid Parentheses (Easy)',
-    'Merge Two Sorted Lists (Medium)',
-    'Longest Substring Without Repeating (Medium)',
-    'Word Ladder (Hard)'
-  ];
-  let similarIndex = 0;
-  let cachedProblemContext = null;
-  let problemContextSent = false;
 
-  function setStatus(text) {
-    status.textContent = text;
+   const provideCodeToggle = document.getElementById('hideCodeToggle');
+  if (!provideCodeToggle) {
+      console.warn("WARNING: 'hideCodeToggle' element not found in HTML. Code generation option will default to false.");
   }
 
-  function updateToggleLabel() {
-    hideCodeLabel.textContent = toggle.checked ? 'On' : 'Off';
-  }
+  // --- State Variables ---
+  let hintsLeft = MAX_HINTS;
+  
 
-  function friendlyError(message) {
-    const lower = message?.toLowerCase() || '';
-    if (lower.includes('inject content script')) {
-      return 'Reload the coding tab, then try again.';
-    }
-    if (lower.includes('no active tab')) {
-      return 'Focus the tab you want help with.';
-    }
-    return message;
-  }
+  let chatHistory = []; 
+
+
+  updateHintDisplay();
+
 
   function addMessage(role, text) {
     const el = document.createElement('div');
     el.className = `chat-msg ${role}`;
-    el.textContent = text;
-    chatWindow.querySelector('.chat-placeholder')?.remove();
+    el.innerHTML = text.replace(/\n/g, '<br>'); 
     chatWindow.appendChild(el);
     chatWindow.scrollTop = chatWindow.scrollHeight;
-    chatHistory.push({ role, text });
+
+    chatHistory.push({
+        role: role,
+        content: text
+    });
   }
 
-  async function fetchProblemContext() {
-    try {
-      cachedProblemContext = await sendMessageToActiveTab({ action: 'getProblemContext' });
-      return cachedProblemContext;
-    } catch (err) {
-      console.warn('Failed to fetch problem context', err);
-      return null;
-    }
-  }
 
-  async function captureDomSnapshot() {
-    try {
-      await sendMessageToActiveTab({ action: 'inspectFlexLayout' });
-    } catch (err) {
-      console.warn('Failed to capture DOM snapshot', err);
-    }
-  }
+  function updateHintDisplay() {
+    hintsLeftDisplay.textContent = `${hintsLeft} Hints Left`;
 
-  async function ensureContentScript(tabId) {
-    if (!chrome?.scripting) return false;
-    try {
-      await chrome.scripting.executeScript({ target: { tabId }, files: ['content.js'] });
-      return true;
-    } catch (err) {
-      console.error('Failed to inject content script', err);
-      return false;
+    if (hintsLeft <= 0) {
+      toggleButtons(false);
+      if (giveUpBtn) giveUpBtn.style.display = 'block';
+      if (status) status.textContent = 'Out of hints!';
+      addMessage('assistant', 'You are out of hints! Try to solve it, or click "I Give Up" to see the solution.');
     }
   }
 
-  async function sendMessageToActiveTab(message) {
-    if (!chrome?.tabs) {
-      throw new Error('Chrome APIs unavailable in this context');
-    }
-    const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
-    const tab = tabs?.[0];
-    if (!tab) {
-      throw new Error('No active tab');
-    }
+  function toggleButtons(enable) {
+    const buttons = [getHintBtn, moreHintBtn, complexityBtn, edgeCaseBtn];
+    buttons.forEach(btn => {
+      if (btn) btn.disabled = !enable;
+    });
+  }
 
-    const send = () => new Promise((resolve, reject) => {
-      chrome.tabs.sendMessage(tab.id, message, (resp) => {
+
+  function getTabContext() {
+    return new Promise(async (resolve, reject) => {
+      const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+      if (!tab) {
+        reject("No active tab found.");
+        return;
+      }
+
+      chrome.tabs.sendMessage(tab.id, { action: "getProblemContext" }, (response) => {
         if (chrome.runtime.lastError) {
-          reject(chrome.runtime.lastError);
+          reject("Please refresh the LeetCode page.");
+        } else if (!response) {
+          reject("No response from page script.");
         } else {
-          resolve(resp);
+          resolve(response);
         }
       });
     });
-
-    try {
-      return await send();
-    } catch (err) {
-      if (err?.message?.includes('Receiving end')) {
-        const injected = await ensureContentScript(tab.id);
-        if (!injected) {
-          throw new Error('Could not inject content script');
-        }
-        return await send();
-      }
-      throw err;
-    }
   }
 
-  async function requestHint(kind) {
-    const verb = kind === 'more' ? 'Requesting follow-up hint' : 'Requesting hint';
-    setStatus(`${verb}...`);
-    addMessage('user', kind === 'more' ? 'Give me another hint.' : 'Give me a hint.');
-    addMessage('assistant', 'Working on a hint...');
+  async function handleRequest(endpointType, userMessage) {
+    if (hintsLeft <= 0 && endpointType !== 'solution') return;
 
-    let problemPayload = null;
-    if (!problemContextSent) {
-      const context = cachedProblemContext || await fetchProblemContext();
-      if (context) {
-        problemPayload = context;
-        problemContextSent = true;
-      }
-    }
+    addMessage('user', userMessage);
+    if (status) status.textContent = 'Analyzing...';
 
     try {
-      const response = await sendMessageToActiveTab({
-        action: 'run',
-        kind,
-        hideCode: toggle.checked,
-        history: chatHistory.slice(-4),
-        problem: problemPayload || undefined,
+      
+      const context = await getTabContext();
+      const { code, slug, lang, problem } = context;
+
+      if (!slug) throw new Error("Could not find problem slug.");
+      
+     
+      const wantCode = provideCodeToggle ? provideCodeToggle.checked : false;
+
+      let payload = {
+        slug: String(slug),
+        description: problem ? String(problem.content) : "Description unavailable",
+        solution: code ? String(code) : "", 
+      };
+
+  
+      
+      if (endpointType === 'hint') {
+         payload.chat_history = chatHistory; 
+         payload.provide_code = wantCode ? "true" : "false"; 
+      } 
+
+    
+      let route = "/hint/get_hint"; 
+      if (endpointType === 'complexity') route = "/hint/task_complexity";
+      if (endpointType === 'edgecase') route = "/hint/generate_edge_cases";
+      if (endpointType === 'solution') route = "/solution"; 
+
+    
+      const res = await fetch(`${BACKEND_URL}${route}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
       });
-      const text = response?.status || 'Highlight complete.';
-      setStatus('Done');
-      chatWindow.lastElementChild.textContent = text;
+
+      if (!res.ok) throw new Error(`Backend Error: ${res.status}`);
+      
+      const data = await res.json();
+      
+   
+      const reply = data.message || data.hint || data.analysis || JSON.stringify(data);
+      
+      
+      addMessage('assistant', reply); 
+      
+      if (status) status.textContent = 'Ready';
+
+ 
+      if (endpointType !== 'solution') {
+        hintsLeft--;
+        updateHintDisplay();
+      } else {
+        toggleButtons(false);
+        if (giveUpBtn) giveUpBtn.disabled = true;
+        if (status) status.textContent = 'Solution revealed.';
+      }
+
     } catch (err) {
-      const message = friendlyError(err?.message || String(err));
-      setStatus(message);
-      chatWindow.lastElementChild.textContent = '⚠️ ' + message;
+      addMessage('assistant', `Error: ${err.message}`);
+      if (status) status.textContent = 'Error';
     }
   }
 
-  getHintBtn.addEventListener('click', async () => {
-    await captureDomSnapshot();
-    await requestHint('first');
-  });
-  moreHintBtn.addEventListener('click', () => requestHint('more'));
-  similarBtn.addEventListener('click', () => {
-    const question = SIMILAR_QUESTIONS[similarIndex % SIMILAR_QUESTIONS.length];
-    similarIndex += 1;
-    addMessage('user', 'Show me a similar question I solved.');
-    addMessage('assistant', `Try revisiting: ${question}.`);
-    setStatus('Shared a similar question.');
-  });
 
-  toggle.addEventListener('change', updateToggleLabel);
-  updateToggleLabel();
+  if (getHintBtn) getHintBtn.addEventListener('click', () => handleRequest('hint', 'Give me a hint.'));
+  
+
+  if (moreHintBtn) moreHintBtn.addEventListener('click', () => handleRequest('hint', 'I need more hint.'));
+  
+  if (complexityBtn) complexityBtn.addEventListener('click', () => handleRequest('complexity', 'Analyze the complexity.'));
+  if (edgeCaseBtn) edgeCaseBtn.addEventListener('click', () => handleRequest('edgecase', 'What are the edge cases?'));
+  
+  if (giveUpBtn) {
+    giveUpBtn.addEventListener('click', () => {
+      if (confirm("Are you sure? This will show the solution and use your remaining hints.")) {
+        handleRequest('solution', 'I give up. Show me the solution.');
+      }
+    });
+  }
 });

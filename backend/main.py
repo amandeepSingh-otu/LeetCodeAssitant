@@ -1,6 +1,7 @@
+from controllers import complexityController, edgeCasesController
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from controllers import hint_controller, complexity_controller, edge_cases_controller
+from controllers import hintController
 
 app = FastAPI()
 
@@ -13,6 +14,6 @@ app.add_middleware(
 )
 
 # Register routers
-app.include_router(hint_controller.router, prefix="/hint")
-app.include_router(complexity_controller.router, prefix="/complexity")
-app.include_router(edge_cases_controller.router, prefix="/edge_cases")
+app.include_router(hintController.router, prefix="/hint")
+app.include_router(complexityController.router, prefix="/hint")
+app.include_router(edgeCasesController.router, prefix="/hint")
