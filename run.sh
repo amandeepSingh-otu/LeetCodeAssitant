@@ -59,7 +59,7 @@ echo "Press Ctrl+C to stop."
 
 if [ -d "backend" ]; then
     cd backend
-    uvicorn main:app --reload --host 127.0.0.1 --port 8000
+    uvicorn main:app --reload 
 else
     echo "Error: 'backend' directory not found. Please run this script from the project root."
     exit 1

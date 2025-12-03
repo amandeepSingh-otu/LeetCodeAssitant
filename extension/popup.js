@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
-  const BACKEND_URL = "http://127.0.0.1:800"; 
+  const BACKEND_URL = "http://127.0.0.1:8000"; 
   const MAX_HINTS = 10;
   const chatWindow = document.getElementById('chatWindow');
   const status = document.getElementById('status');

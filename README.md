@@ -26,6 +26,12 @@
 *   **Hint Limits**: Limited to 10 hints per session to encourage independent thinking.
 *   **Safety**: Built-in guardrails against prompt injection and excessive input size.
 
+## Demo Video
+
+_Click to watch:_
+
+[![LeetCode Assistant Demo](https://img.youtube.com/vi/OI-l1PmoXXg/0.jpg)](https://www.youtube.com/watch?v=OI-l1PmoXXg)
+
 ## Project Structure
 
 ```
