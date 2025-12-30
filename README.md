@@ -26,11 +26,6 @@
 *   **Hint Limits**: Limited to 10 hints per session to encourage independent thinking.
 *   **Safety**: Built-in guardrails against prompt injection and excessive input size.
 
-## Demo Video
-
-_Click to watch:_
-
-[![LeetCode Assistant Demo](https://img.youtube.com/vi/OI-l1PmoXXg/0.jpg)](https://www.youtube.com/watch?v=OI-l1PmoXXg)
 
 ## Project Structure
 
@@ -115,19 +110,4 @@ The Retrieval Augmented Generation system (`ragEngine.py`) enhances hint quality
 1.  **Embedding**: We use Google's `text-embedding-004` model to convert the current problem description into a high-dimensional vector.
 2.  **Retrieval**: We calculate the cosine similarity between this vector and our pre-computed database of solved LeetCode problems (`vectorStore.json`).
 3.  **Context Injection**: The top 3 most similar problems (and their solutions) are injected into the system prompt. This allows Gemini to say, *"This problem is similar to '3Sum', where we used a two-pointer approach..."* without hallucinating.
-
-## Project Grading Criteria Checklist
-
-| Category | Requirement | Implementation Details |
-| :--- | :--- | :--- |
-| **Core** | Real user flow calling LLM | "Get Hint", "Complexity", and "Edge Cases" buttons trigger full backend -> LLM pipeline. |
-| **Enhancement** | RAG (Embed + Vector Search) | `ragEngine.py` uses `text-embedding-004` + cosine similarity on `vectorStore.json`. |
-| **Safety** | System Prompt Do/Don't Rules | `prompts.json` defines strict Socratic persona and solution-hiding rules. |
-| **Safety** | Input Length Guard | `main.py` middleware blocks payloads > 20KB. |
-| **Safety** | Prompt Injection Check | `safety.py` scans for patterns like "ignore previous instructions". |
-| **Telemetry** | Log timestamp, pathway, latency | `llmClient.py` logs structured JSON telemetry for every call. |
-| **Eval** | Offline Eval Script | `backend/test.py` runs integration tests against expected regex patterns. |
-| **Repro** | One-command run | `./run.sh` sets up env, installs deps, and starts server. |
-| **Bonus** | Rate Limiting | Client-side session limit (10 hints) + Server-side exponential backoff for LLM 429 errors. |
-| **Bonus** | UX Polish | Loading states, hint counter, modern CSS. |
 
